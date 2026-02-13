@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from './supabaseClient';
-import { FEATURES } from './features';
+import { FEATURES as _FEATURES } from './features';
 import { useCaseOverview } from './hooks/useCaseOverview';
 import { LifecycleStepper } from './components/LifecycleStepper';
 
@@ -25,14 +25,14 @@ import {
   Loader2,
   Copy,
   Clock,
-  Upload,
+
   Trash2,
   Download,
   BarChart3,
   History,
   FileCheck,
   Eye,
-  MoreVertical,
+
   Briefcase,
   Filter,
   Square,
@@ -50,11 +50,11 @@ import {
   Menu,
   Building,
   Check,
-  Calendar,
+
   Moon,
   Sun,
   BookOpen,
-  AlertCircle,
+
   Crown,
   TrendingUp,
   ShieldCheck,
@@ -206,7 +206,7 @@ const formatDate = (daysToAdd: number) => {
   return d.toISOString().split('T')[0];
 };
 
-const MOCK_CHARGEBACKS: Chargeback[] = [
+export const MOCK_CHARGEBACKS: Chargeback[] = [
   {
     id: 'CB-2024-101',
     merchant: 'CoolBlue BV',
@@ -651,7 +651,7 @@ const CardBrand = ({ brand }: { brand: 'visa' | 'mastercard' }) => (
 );
 
 // --- Extended Case Detail Modal ---
-const CaseDetailModal = ({
+export const CaseDetailModal = ({
   isOpen,
   onClose,
   chargeback,
@@ -668,7 +668,7 @@ const CaseDetailModal = ({
   >('overview');
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiData, setAiData] = useState<any>(null);
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, _setDashboardData] = useState<any>(null);
   const [localCase, setLocalCase] = useState<Chargeback | null>(null);
   const [expertRequestLoading, setExpertRequestLoading] = useState(false);
   const [noteText, setNoteText] = useState('');
@@ -2304,7 +2304,7 @@ const ROICalculator = () => {
 // --- Login Screen ---
 const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
   const { isDarkMode } = useContext(ThemeContext);
-  const [authMode, setAuthMode] = useState<
+  const [_authMode, _setAuthMode] = useState<
     'options' | 'email-login' | 'email-signup'
   >('email-login'); // Default to email
   const [email, setEmail] = useState('');
@@ -2367,7 +2367,7 @@ const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
 
           <button
             onClick={async () => {
-              const { data, error } = await supabase.auth.signInWithPassword({
+              const { error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
               });
@@ -2400,7 +2400,7 @@ const LoginScreen = ({ onLogin }: { onLogin: () => void }) => {
         <div className="space-y-4">
           <button
             onClick={async () => {
-              const { data, error } = await supabase.auth.signInWithOAuth({
+              const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
               });
               if (error) console.error('Login error:', error);
@@ -2643,37 +2643,11 @@ export default function ChargebackApp() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, _setIsLoading] = useState(false);
 
-  const isTransientAuthError = (error: any) => {
-    const msg = (error?.message || '').toLowerCase();
-    const status = error?.status;
 
-    return (
-      status >= 500 ||
-      msg.includes('fetch') ||
-      msg.includes('network') ||
-      msg.includes('timeout') ||
-      msg.includes('connection') ||
-      msg.includes('econnreset')
-    );
-  };
 
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  const signInWithRetry = async (email: string, password: string) => {
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await supabase.auth.signInWithPassword({ email, password });
-      if (!res.error) return res;
-
-      if (isTransientAuthError(res.error) && attempt < 2) {
-        await sleep(400 * (attempt + 1));
-        continue;
-      }
-
-      return res;
-    }
-  };
 
   // Check auth status
   useEffect(() => {
@@ -2712,8 +2686,8 @@ export default function ChargebackApp() {
 
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [mockIntegrations, setMockIntegrations] = useState(INTEGRATIONS);
-  const [isCaseModalOpen, setIsCaseModalOpen] = useState(false);
-  const [selectedCase, setSelectedCase] = useState<Chargeback | null>(null);
+  const [_isCaseModalOpen, setIsCaseModalOpen] = useState(false);
+  const [_selectedCase, setSelectedCase] = useState<Chargeback | null>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [chargebacks, setChargebacks] = useState<any[]>([]);
 
@@ -2823,7 +2797,7 @@ export default function ChargebackApp() {
   const [disputeFilter, setDisputeFilter] = useState<'All' | ChargebackStatus>(
     'All'
   );
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, _setSearchQuery] = useState('');
 
   // Calculate urgent cases (deadline < 72 hours)
   const urgentCases = chargebacks.filter((cb) => {
@@ -2854,13 +2828,13 @@ export default function ChargebackApp() {
   // Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Wero (Soon to come) UI
-  const [isWeroSoonOpen, setIsWeroSoonOpen] = useState(false);
+  const [_isWeroSoonOpen, _setIsWeroSoonOpen] = useState(false);
 
   // Other states
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [teamMembers, setTeamMembers] = useState(INITIAL_TEAM_MEMBERS);
+  const [teamMembers, _setTeamMembers] = useState(INITIAL_TEAM_MEMBERS);
   const [connectingProvider, setConnectingProvider] = useState<string | null>(
     null
   );
@@ -2875,12 +2849,6 @@ export default function ChargebackApp() {
   const handleOpenCase = (cb: Chargeback) => {
     setSelectedCase(cb);
     setIsCaseModalOpen(true);
-  };
-
-  const handleUpdateCase = (updated: Chargeback) => {
-    setChargebacks((prev) =>
-      prev.map((c) => (c.id === updated.id ? updated : c))
-    );
   };
 
   const handleConnect = (id: string) => {
