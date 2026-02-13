@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from './supabaseClient';
 import { FEATURES } from './features';
+import { useCaseOverview } from './hooks/useCaseOverview';
+import { LifecycleStepper } from './components/LifecycleStepper';
 
 import {
   LayoutDashboard,
@@ -671,6 +673,11 @@ const CaseDetailModal = ({
   const [expertRequestLoading, setExpertRequestLoading] = useState(false);
   const [noteText, setNoteText] = useState('');
 
+  // Lifecycle overview data from Supabase
+  const { data: overviewData, loading: overviewLoading } = useCaseOverview(
+    chargeback?.id ?? null
+  );
+
   useEffect(() => {
     if (chargeback) {
       setLocalCase(chargeback);
@@ -1009,48 +1016,58 @@ const CaseDetailModal = ({
 
             {activeTab === 'overview' && (
               <div className="space-y-8">
-                {/* Workflow Stepper Desktop */}
-                <div className="w-full overflow-x-auto pb-2">
-                  <div className="flex justify-between relative min-w-[500px]">
-                    <div
-                      className={`absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 ${
-                        isDarkMode ? 'bg-[#3E3E3E]' : 'bg-slate-200'
-                      } -z-0 rounded`}
-                    ></div>
-                    {[
-                      'Retrieval',
-                      '1st Chargeback',
-                      'Representment',
-                      'Pre-Arb',
-                      'Decision',
-                    ].map((step, idx) => {
-                      const currentIdx = [
+                {/* Lifecycle Stepper */}
+                {overviewLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 size={24} className="animate-spin text-[#FF6D00]" />
+                  </div>
+                )}
+                {overviewData && (
+                  <LifecycleStepper data={overviewData} isDarkMode={isDarkMode} />
+                )}
+                {!overviewLoading && !overviewData && (
+                  <div className="w-full overflow-x-auto pb-2">
+                    <div className="flex justify-between relative min-w-[500px]">
+                      <div
+                        className={`absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 ${
+                          isDarkMode ? 'bg-[#3E3E3E]' : 'bg-slate-200'
+                        } -z-0 rounded`}
+                      ></div>
+                      {[
                         'Retrieval',
                         '1st Chargeback',
                         'Representment',
                         'Pre-Arb',
                         'Decision',
-                      ].indexOf(localCase.workflowStep);
-                      const isCompleted = idx <= currentIdx;
-                      return (
-                        <div
-                          key={step}
-                          className={`relative z-10 px-4 py-1 rounded-full text-xs font-bold border-2 ${
-                            isCompleted
-                              ? 'bg-[#FF6D00] border-[#FF6D00] text-white'
-                              : `${
-                                  isDarkMode
-                                    ? 'bg-[#2C2C2C] border-[#3E3E3E]'
-                                    : 'bg-white border-slate-200'
-                                } ${textSecondary}`
-                          }`}
-                        >
-                          {step}
-                        </div>
-                      );
-                    })}
+                      ].map((step, idx) => {
+                        const currentIdx = [
+                          'Retrieval',
+                          '1st Chargeback',
+                          'Representment',
+                          'Pre-Arb',
+                          'Decision',
+                        ].indexOf(localCase.workflowStep);
+                        const isCompleted = idx <= currentIdx;
+                        return (
+                          <div
+                            key={step}
+                            className={`relative z-10 px-4 py-1 rounded-full text-xs font-bold border-2 ${
+                              isCompleted
+                                ? 'bg-[#FF6D00] border-[#FF6D00] text-white'
+                                : `${
+                                    isDarkMode
+                                      ? 'bg-[#2C2C2C] border-[#3E3E3E]'
+                                      : 'bg-white border-slate-200'
+                                  } ${textSecondary}`
+                            }`}
+                          >
+                            {step}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* --- PRO TIP / UPSELL BANNER --- */}
                 {localCase.status === 'Open' && (
